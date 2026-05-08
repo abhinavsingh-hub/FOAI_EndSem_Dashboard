@@ -1,10 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MessageSquare, X, Send, Trash2, Bot, User } from 'lucide-react';
-import { HfInference } from '@huggingface/inference';
 import toast from 'react-hot-toast';
-
-// Initialize Hugging Face Inference
-const hf = new HfInference(import.meta.env.VITE_AI_TOKEN);
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -74,17 +70,17 @@ RULE: You are a helpful AI assistant for this dashboard. You MUST ONLY answer qu
     try {
       const context = getDashboardContext();
       
-      const result = await hf.chatCompletion({
-        model: 'Qwen/Qwen2.5-72B-Instruct',
-        messages: [
-          { role: 'system', content: context },
-          { role: 'user', content: userMsg }
-        ],
-        max_tokens: 250,
-        temperature: 0.1,
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ context, userMsg })
       });
+      
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || 'Server Error');
 
-      let aiText = result.choices[0].message.content.trim();
+      let aiText = data.text.trim();
       setMessages([...newMessages, { role: 'assistant', content: aiText }]);
     } catch (error) {
       console.error(error);

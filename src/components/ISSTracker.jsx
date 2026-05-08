@@ -67,10 +67,10 @@ export default function ISSTracker() {
 
   const fetchLocationName = async (lat, lon) => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&zoom=10`);
+      const res = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
       const data = await res.json();
-      if (data && data.address) {
-        setLocationName(data.address.city || data.address.state || data.address.country || 'Unknown Land');
+      if (data && (data.city || data.locality || data.countryName)) {
+        setLocationName(data.city || data.locality || data.countryName || 'Unknown Land');
       } else {
         setLocationName('Over the Ocean');
       }
